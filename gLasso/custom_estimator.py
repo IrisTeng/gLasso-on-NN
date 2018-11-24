@@ -31,16 +31,8 @@ def my_model(features, labels, mode, params):
     # Create three fully connected layers each layer having a dropout
     # probability of 0.1.
     net = tf.feature_column.input_layer(features, params['feature_columns'])
-    regularizer = tf.contrib.layers.l2_regularizer(scale=.6)
-    net = tf.layers.dense(net, units=params['hidden_units'][0],
-                          activation=tf.nn.relu,
-                          kernel_regularizer=regularizer,
-                          name="layer1")
-
-    # then for the following layers
-    if len(params['hidden_units']) >= 2:
-        for units in params['hidden_units'][1:]:
-            net = tf.layers.dense(net, units=units, activation=tf.nn.relu)
+    for units in params['hidden_units']:
+        net = tf.layers.dense(net, units=units, activation=tf.nn.relu)
 
     # Compute logits (1 per class).
     logits = tf.layers.dense(net, params['n_classes'], activation=None)
@@ -74,7 +66,6 @@ def my_model(features, labels, mode, params):
 
     optimizer = tf.train.AdagradOptimizer(learning_rate=0.1)
     train_op = optimizer.minimize(loss, global_step=tf.train.get_global_step())
-    layer1_weight = tf.trainable_variables("layer1")
     return tf.estimator.EstimatorSpec(mode, loss=loss, train_op=train_op)
 
 
